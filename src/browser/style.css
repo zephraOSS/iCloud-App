@@ -1,0 +1,23 @@
+.toolbar-view,
+.contacts.sc-view.toolbar,
+.calendar.sc-view.main-header,
+.base-application-toolbar-view {
+    -webkit-app-region: drag;
+}
+
+.toolbar-view .right-group,
+.toolbar-view [role="button"],
+.application-toolbar-left-view-content,
+.user-name-with-chevron,
+.sc-text-field-view,
+.search-bar,
+.icloud-controls.app-switcher,
+.icloud-controls.account-menu,
+.navigation-bar .main-navbar-content,
+/* Apps */
+.calendar.sc-view.arrow.previous-arrow,
+.calendar.sc-view.arrow.next-arrow,
+.contacts.sc-view.contacts-button,
+.folder-toolbar.folder-toolbar-view {
+    -webkit-app-region: no-drag;
+}
