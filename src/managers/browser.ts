@@ -27,8 +27,8 @@ export class Browser {
 
         initIPC(this);
 
-        const scriptContent = fs.readFileSync(
-            path.join(app.getAppPath(), "browser/script.js"),
+        const styleContent = fs.readFileSync(
+            path.join(app.getAppPath(), "browser/style.css"),
             "utf8"
         );
 
@@ -39,11 +39,69 @@ export class Browser {
         this._window.loadURL("https://www.icloud.com");
         this._window.webContents.on("dom-ready", () => {
             this._window.webContents.executeJavaScript(`
-                const script = document.createElement("script");
+                let iframes = document.querySelectorAll("iframe");
 
-                script.innerHTML = \`${scriptContent}\`;
+                function createStyle(doc = document) {
+                    console.log("cS", doc.querySelector("#electron-style"));
+                    if (doc.querySelector("#electron-style")) return;
+
+                    const style = doc.createElement("style");
+    
+                    style.id = "electron-style";
+                    style.innerHTML = \`${styleContent}\`;
+                    
+                    doc.querySelector("head").appendChild(style);
+                }
                 
-                document.querySelector("head").appendChild(script);
+                function writeTextToInput(input, text) {
+                    input.value = text;
+                    input.dispatchEvent(new Event("input"));
+                }
+                
+                async function createPasswordListener(element) {
+                    const password = await window.electron.getPassword();
+                    
+                    setTimeout(() => {
+                        writeTextToInput(element, password);
+                    }, 1000);
+                
+                    element.addEventListener("input", (e) => {
+                        window.electron.setPassword(e.target.value);
+                    });
+                }
+                
+                createStyle();
+                
+                new MutationObserver(() => {
+                    console.log("mutate", document.querySelectorAll("iframe").length, iframes.length)
+                    if (document.querySelectorAll("iframe").length !== iframes.length) {
+                        iframes = document.querySelectorAll("iframe");
+                        
+                        iframes.forEach(iframe => {
+                            iframe.addEventListener("load", () => {
+                                const doc = iframe.contentDocument,
+                                    listeners = [];
+
+                                createStyle(doc);
+                                
+                                new MutationObserver(() => {
+                                    const password = doc.querySelector("input[type=password]");
+
+                                    if (password && !listeners.includes(password)) {
+                                        createPasswordListener(password);
+                                        listeners.push(password);
+                                    }
+                                }).observe(doc, {
+                                    childList: true,
+                                    subtree: true
+                                });
+                            });
+                        });
+                    }
+                }).observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
             `);
         });
     }
