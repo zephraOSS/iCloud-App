@@ -16,8 +16,6 @@ function createIcon(data: string) {
         "base64"
     );
 
-    console.log(path.join(app.getAppPath(), "assets/apps/calendar.png"));
-
     fs.writeFileSync(
         path.join(app.getAppPath(), "assets/apps/calendar.png"),
         buffer
