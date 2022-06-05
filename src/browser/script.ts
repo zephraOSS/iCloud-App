@@ -35,11 +35,6 @@ async function createPasswordListener(element) {
 }
 
 new MutationObserver(() => {
-    console.log(
-        "mutate",
-        document.querySelectorAll("iframe").length,
-        iframes.length
-    );
     if (document.querySelectorAll("iframe").length !== iframes.length) {
         iframes = document.querySelectorAll("iframe");
 
