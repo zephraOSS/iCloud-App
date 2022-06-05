@@ -32,6 +32,7 @@ export class Browser {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Safari/605.1.15";
         this._window.setMenu(null);
         this._window.loadURL("https://www.icloud.com");
+        this._window.webContents.on("dom-ready", () => inject(this._window));
 
         app.on("browser-window-created", (_e, window) => window.setMenu(null));
     }
