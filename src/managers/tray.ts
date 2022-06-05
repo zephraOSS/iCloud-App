@@ -1,4 +1,4 @@
-import { Tray, Menu, app } from "electron";
+import { Tray, Menu, app, shell } from "electron";
 import { Browser } from "./browser";
 import { get, set } from "./store";
 import { init as initAutoLaunch } from "./autoLaunch";
@@ -30,6 +30,15 @@ export class TrayManager {
                 } V.${app.getVersion()}`,
                 icon: path.join(app.getAppPath(), "assets/drive@32.png"),
                 enabled: false
+            },
+            {
+                label: "GitHub",
+                icon: path.join(app.getAppPath(), "assets/github@16.png"),
+                click: () => {
+                    shell.openExternal(
+                        "https://github.com/ZephraCloud/iCloud-App"
+                    );
+                }
             },
             {
                 label: "Settings",
