@@ -104,6 +104,8 @@ export class Browser {
                 });
             `);
         });
+
+        app.on("browser-window-created", (_e, window) => window.setMenu(null));
     }
 
     public static getInstance(): Browser {
