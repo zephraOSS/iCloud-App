@@ -1,5 +1,6 @@
 import CryptoJS from "crypto";
 import { getKey } from "./encryptKey";
+import { get } from "../managers/store";
 import {
     getPassword as kGetPassword,
     setPassword as kSetPassword,
@@ -7,6 +8,8 @@ import {
 } from "keytar";
 
 export async function getPassword() {
+    if (!get("savePassword")) return "";
+
     const password = await kGetPassword(
         "com.zephra.icloud-app",
         "appleId-password"
@@ -22,6 +25,8 @@ export async function getPassword() {
 }
 
 export function setPassword(password: string) {
+    if (!get("savePassword")) return;
+
     if (password)
         kSetPassword(
             "com.zephra.icloud-app",
