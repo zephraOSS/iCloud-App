@@ -35,6 +35,14 @@ async function createPasswordListener(element) {
     });
 }
 
+function getCalendarIcon() {
+    return (
+        document.querySelector<HTMLImageElement>(
+            "img.calendar-icon-view.app-icon-view"
+        )?.src ?? ""
+    );
+}
+
 function createIconObserver(iframe: HTMLIFrameElement) {
     mutateIFrames[iframe.id] = {
         iframe,
@@ -50,7 +58,8 @@ function createIconObserver(iframe: HTMLIFrameElement) {
                 window.electron.setIcon(
                     iframe.id
                         .replace(/[\d-]/g, "")
-                        .replace("iclouddrive", "drive")
+                        .replace("iclouddrive", "drive"),
+                    (iframe.id = "calendar" ? getCalendarIcon() : "")
                 );
             }
 
