@@ -1,6 +1,11 @@
 import { app } from "electron";
-import { Browser } from "./managers/browser";
+import { TrayManager } from "./managers/tray";
+import { init as initAutoLaunch } from "./managers/autoLaunch";
+
+export let trayManager: TrayManager;
 
 app.on("ready", () => {
-    new Browser();
+    trayManager = new TrayManager();
+
+    initAutoLaunch();
 });
