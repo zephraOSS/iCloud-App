@@ -2,7 +2,8 @@ interface Window {
     electron: any;
 }
 
-let iframes = document.querySelectorAll("iframe");
+let iframes = document.querySelectorAll("iframe"),
+    mutateIFrames = {};
 
 function createStyle(doc = document) {
     if (doc.querySelector("#electron-style")) return;
@@ -34,6 +35,36 @@ async function createPasswordListener(element) {
     });
 }
 
+function createIconObserver(iframe: HTMLIFrameElement) {
+    mutateIFrames[iframe.id] = {
+        iframe,
+        hidden: iframe.classList.contains("view-hidden")
+    };
+
+    new MutationObserver(() => {
+        const hidden = iframe.classList.contains("view-hidden");
+
+        if (hidden !== mutateIFrames[iframe.id].hidden) {
+            if (hidden) window.electron.setIcon("drive");
+            else {
+                window.electron.setIcon(
+                    iframe.id
+                        .replace(/[\d-]/g, "")
+                        .replace("iclouddrive", "drive")
+                );
+            }
+
+            mutateIFrames[iframe.id].hidden = !hidden;
+        } else if (
+            document.querySelectorAll("iframe:not(.view-hidden)").length === 0
+        )
+            window.electron.setIcon("drive");
+    }).observe(iframe, {
+        attributes: true,
+        attributeFilter: ["class"]
+    });
+}
+
 new MutationObserver(() => {
     if (document.querySelectorAll("iframe").length !== iframes.length) {
         iframes = document.querySelectorAll("iframe");
@@ -43,6 +74,7 @@ new MutationObserver(() => {
                 const doc = iframe.contentDocument,
                     listeners = [];
 
+                createIconObserver(iframe);
                 createStyle(doc);
 
                 new MutationObserver(() => {
