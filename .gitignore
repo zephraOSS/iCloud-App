@@ -2,5 +2,6 @@
 /app
 /dist
 /node_modules
+/src/utils/encryptKey.ts
 
 .DS_Store
