@@ -1,7 +1,6 @@
 {
     "name": "icloud-app",
-    "version": "1.0.0",
-    "description": "",
+    "version": "1.0.0-beta",
     "scripts": {
         "start": "npm run copy && npm run build && electron ./dist/",
         "copy": "copyfiles -u 1 -a src/assets/** src/language/** src/browser/*.css src/browser/*.html dist/ && copyfiles package.json dist/",
