@@ -3,7 +3,9 @@ import * as log from "electron-log";
 
 const config = new Store({
     defaults: {
-        windowState: {}
+        windowState: {},
+        autoLaunch: true,
+        savePassword: true
     }
 });
 
