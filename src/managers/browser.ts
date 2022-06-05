@@ -11,6 +11,11 @@ export class Browser {
     private readonly _window: BrowserWindow;
 
     constructor() {
+        if (Browser._instance) {
+            Browser.show();
+            return;
+        }
+
         const windowState = getConfig("windowState");
 
         this._window = new BrowserWindow({
@@ -41,6 +46,10 @@ export class Browser {
         if (!this._instance) this._instance = new Browser();
 
         return this._instance;
+    }
+
+    public static show() {
+        Browser.getInstance().getWindow().show();
     }
 
     getWindow(): BrowserWindow {
