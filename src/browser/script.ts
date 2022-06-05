@@ -59,7 +59,7 @@ function createIconObserver(iframe: HTMLIFrameElement) {
                     iframe.id
                         .replace(/[\d-]/g, "")
                         .replace("iclouddrive", "drive"),
-                    (iframe.id = "calendar" ? getCalendarIcon() : "")
+                    iframe.id === "calendar" ? getCalendarIcon() : ""
                 );
             }
 
