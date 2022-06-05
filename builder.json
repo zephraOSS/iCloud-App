@@ -1,0 +1,28 @@
+{
+    "appId": "com.zephra.icloud-app",
+    "productName": "iCloud (E)",
+    "artifactName": "iCloud (E).${ext}",
+    "copyright": "Copyright © 2022 zephra",
+    "protocols": [
+        {
+            "name": "iCloud (E)",
+            "schemes": ["icloud-e"]
+        }
+    ],
+    "asar": true,
+    "directories": {
+        "app": "dist",
+        "buildResources": "src/assets",
+        "output": "app/win"
+    },
+    "nsis": {
+        "createDesktopShortcut": "always"
+    },
+    "win": {
+        "target": "nsis",
+        "icon": "src/assets/drive@256.png",
+        "artifactName": "iCloud (E)-Installer.exe",
+        "publisherName": "zephra",
+        "publish": ["github"]
+    }
+}
