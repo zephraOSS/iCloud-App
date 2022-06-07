@@ -3,6 +3,7 @@ import { Browser } from "./browser";
 import { get, set } from "./store";
 import { erase } from "./discord";
 import { init as initAutoLaunch } from "./autoLaunch";
+import { checkForUpdates } from "./updater";
 
 import * as path from "path";
 
@@ -41,11 +42,18 @@ export class TrayManager {
                     );
                 }
             },
+            { type: "separator" },
+            {
+                label: "Check for Updates",
+                click() {
+                    checkForUpdates();
+                }
+            },
+            { type: "separator" },
             {
                 label: "Settings",
                 enabled: false
             },
-            { type: "separator" },
             {
                 label: "Auto Launch",
                 type: "checkbox",
