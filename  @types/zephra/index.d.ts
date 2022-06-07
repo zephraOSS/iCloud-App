@@ -5,6 +5,7 @@ interface Clients {
 interface ClientData {
     client: Client;
     ready: boolean;
+    cleared?: boolean;
     presenceData?: PresenceData;
 }
 

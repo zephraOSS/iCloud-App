@@ -3,7 +3,8 @@ interface Window {
 }
 
 let iframes = document.querySelectorAll("iframe"),
-    mutateIFrames = {};
+    mutateIFrames = {},
+    mutateActivities = [];
 
 function createStyle(doc = document) {
     if (doc.querySelector("#electron-style")) return;
@@ -18,9 +19,21 @@ function createStyle(doc = document) {
     doc.querySelector("head").appendChild(style);
 }
 
+function replaceName(name: string) {
+    return name?.replace("iclouddrive", "drive").replace(/[\d-]/g, "");
+}
+
 function writeTextToInput(input, text) {
     input.value = text;
     input.dispatchEvent(new Event("input"));
+}
+
+function setActivity(app: string, activity: PresenceData) {
+    window.electron.setActivity(replaceName(app), activity);
+}
+
+function clearActivity(app?: string) {
+    window.electron.clearActivity(replaceName(app));
 }
 
 async function createPasswordListener(element) {
@@ -43,6 +56,236 @@ function getCalendarIcon() {
     );
 }
 
+function initiateActivity(app: string) {
+    if (mutateActivities.includes(app)) return;
+
+    mutateActivities.push(app);
+
+    switch (app) {
+        case "mail2": {
+            setActivity(app, {
+                details: "Reading their Emails"
+            });
+
+            const doc =
+                document.querySelector<HTMLIFrameElement>(
+                    "iframe#mail2"
+                )?.contentDocument;
+
+            if (doc) {
+                new MutationObserver(() => {
+                    const activeMail =
+                        doc.querySelector<HTMLDivElement>(
+                            ".thread-list-inner:focus-within .ic-1iosphu .selection-background"
+                        ) ??
+                        doc.querySelector<HTMLDivElement>(
+                            ".thread-list-inner:not(:focus-within) .ic-1iosphu .selection-background"
+                        );
+
+                    if (activeMail) {
+                        const subject = activeMail.querySelector(
+                                ".thread-subject span"
+                            )?.textContent,
+                            sender = activeMail.querySelector(
+                                ".thread-participants"
+                            )?.textContent;
+
+                        setActivity(app, {
+                            details: `Reading an Email from ${sender}`,
+                            state: subject
+                        });
+                    } else {
+                        setActivity(app, {
+                            details: "Reading their Emails"
+                        });
+                    }
+                }).observe(doc, {
+                    attributes: true,
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            break;
+        }
+
+        case "contacts": {
+            setActivity(app, {
+                details: "Viewing their Contacts"
+            });
+
+            const doc =
+                document.querySelector<HTMLIFrameElement>(
+                    "iframe#contacts"
+                )?.contentDocument;
+
+            if (doc) {
+                new MutationObserver(() => {
+                    const activeContact = doc.querySelector<HTMLDivElement>(
+                        ".contacts.sticky-header-scroll-view.contact-list .headered-list-view .headered-list-item.sel"
+                    );
+
+                    if (activeContact) {
+                        const name =
+                                activeContact.querySelector(
+                                    "label"
+                                )?.textContent,
+                            surname =
+                                activeContact.querySelector(
+                                    "label > strong"
+                                )?.textContent;
+
+                        setActivity(app, {
+                            details: `Viewing a Contact`,
+                            state:
+                                name !== surname
+                                    ? name.replace(surname, "")
+                                    : name
+                        });
+                    } else {
+                        setActivity(app, {
+                            details: "Viewing their Contacts"
+                        });
+                    }
+                }).observe(doc, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            break;
+        }
+
+        case "calendar": {
+            setActivity(app, {
+                details: "Viewing their Calendar"
+            });
+
+            const doc =
+                document.querySelector<HTMLIFrameElement>(
+                    "iframe#calendar"
+                )?.contentDocument;
+
+            if (doc) {
+                new MutationObserver(() => {
+                    const editEvent = doc.querySelector<HTMLDivElement>(
+                            ".calendar.sc-view.sc-panel.pop-over.event-inspector-panel.picker.popme"
+                        ),
+                        timeSpan = doc.querySelector(
+                            ".calendar.sc-view.navigation-control-date"
+                        );
+
+                    if (editEvent) {
+                        const title =
+                            editEvent.querySelector<HTMLInputElement>(
+                                'input[aria-label="Event Title"]'
+                            )?.value ??
+                            editEvent.querySelector<HTMLDivElement>(
+                                ".calendar.sc-view.sc-label-view.inspector-title"
+                            )?.textContent;
+
+                        setActivity(app, {
+                            details: "Editing an Event",
+                            state: title
+                        });
+                    } else {
+                        setActivity(app, {
+                            details: "Viewing their Calendar",
+                            state: timeSpan?.textContent
+                        });
+                    }
+                }).observe(doc, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            break;
+        }
+
+        case "photos3": {
+            setActivity(app, {
+                details: "Viewing their Photos"
+            });
+
+            const doc =
+                document.querySelector<HTMLIFrameElement>(
+                    "iframe#photos3"
+                )?.contentDocument;
+
+            if (doc) {
+                const timeSpan = doc.querySelector<HTMLSpanElement>(
+                    ".grid-header-view.grid-header-view-v2 > .top-row .grid-title > span"
+                )?.textContent;
+
+                new MutationObserver(() => {
+                    const activePhoto = doc.querySelector<HTMLDivElement>(
+                            ".pok-derivative-display-elements-positioner"
+                        ),
+                        category = doc.querySelector<HTMLSpanElement>(
+                            ".SidebarItemWrapper.SidebarItem.is-selected .SidebarItem-title span > span"
+                        )?.textContent;
+
+                    if (activePhoto) {
+                        const date = doc.querySelector<HTMLDivElement>(
+                            "div.title-content > div.title-text"
+                        )?.textContent;
+
+                        setActivity(app, {
+                            details: "Viewing a Photo",
+                            state: date
+                        });
+                    } else {
+                        setActivity(app, {
+                            details: `Viewing ${category ?? "their Photos"}`,
+                            state: timeSpan
+                        });
+                    }
+                }).observe(doc, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            break;
+        }
+
+        case "iclouddrive": {
+            setActivity(app, {
+                details: "Viewing their iCloud Drive"
+            });
+
+            const doc =
+                document.querySelector<HTMLIFrameElement>(
+                    "iframe#iclouddrive"
+                )?.contentDocument;
+
+            if (doc) {
+                new MutationObserver(() => {
+                    let path = "";
+
+                    doc.querySelectorAll<HTMLDivElement>(
+                        ".path-bar-item"
+                    ).forEach((item) => (path += item.textContent + "/"));
+
+                    setActivity(app, {
+                        details: "Viewing their iCloud Drive",
+                        state: path.replace("iCloud Drive/", "") ?? ""
+                    });
+                }).observe(doc, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            break;
+        }
+
+        default:
+            break;
+    }
+}
+
 function createIconObserver(iframe: HTMLIFrameElement) {
     mutateIFrames[iframe.id] = {
         iframe,
@@ -53,21 +296,29 @@ function createIconObserver(iframe: HTMLIFrameElement) {
         const hidden = iframe.classList.contains("view-hidden");
 
         if (hidden !== mutateIFrames[iframe.id].hidden) {
-            if (hidden) window.electron.setIcon("drive");
-            else {
+            if (hidden) {
+                window.electron.setIcon("drive");
+                console.log("cleaBBBr", iframe.id);
+                clearActivity(iframe.id);
+            } else {
                 window.electron.setIcon(
                     iframe.id
                         .replace(/[\d-]/g, "")
                         .replace("iclouddrive", "drive"),
                     iframe.id === "calendar" ? getCalendarIcon() : ""
                 );
+
+                console.log("init", iframe.id);
+                initiateActivity(iframe.id);
             }
 
             mutateIFrames[iframe.id].hidden = !hidden;
         } else if (
             document.querySelectorAll("iframe:not(.view-hidden)").length === 0
-        )
+        ) {
             window.electron.setIcon("drive");
+            clearActivity();
+        }
     }).observe(iframe, {
         attributes: true,
         attributeFilter: ["class"]
