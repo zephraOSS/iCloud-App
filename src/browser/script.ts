@@ -402,7 +402,7 @@ function initiateActivity(app: string) {
                             ".find-me.sc-view.devices-btn.st-devicesBtn.button label"
                         )?.textContent,
                         deviceDialog = doc.querySelector<HTMLDivElement>(
-                            ".find-me.sc-panel.sc-palette.device-detail-floating-view.device-action-pane.focus.panel"
+                            ".find-me.sc-view.sc-panel.sc-palette.device-detail-floating-view.device-action-pane.panel > .find-me.navigationViewPickerPane.sc-view.device-detail"
                         ),
                         deviceImg =
                             deviceDialog?.querySelector<HTMLImageElement>(
@@ -418,7 +418,11 @@ function initiateActivity(app: string) {
                         setActivity(app, {
                             details: "Viewing Find My",
                             state: device,
-                            smallImageKey: deviceDialog ? deviceImg : undefined
+                            smallImageKey:
+                                deviceDialog &&
+                                deviceDialog.offsetParent !== null
+                                    ? deviceImg.replace("infobox", "sourcelist")
+                                    : undefined
                         });
                     }
                 }).observe(doc, {
