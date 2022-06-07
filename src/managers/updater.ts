@@ -30,7 +30,7 @@ export function init() {
 }
 
 export function checkForUpdates() {
-    log.log("[UPDATER]", "Checking for Updates...");
+    log.info("[UPDATER]", "Checking for Updates...");
 
     autoUpdater.checkForUpdatesAndNotify();
 }
