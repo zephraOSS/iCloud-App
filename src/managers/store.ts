@@ -5,7 +5,8 @@ const config = new Store({
     defaults: {
         windowState: {},
         autoLaunch: true,
-        savePassword: true
+        savePassword: true,
+        discordRPC: true
     }
 });
 
