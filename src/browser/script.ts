@@ -281,6 +281,155 @@ function initiateActivity(app: string) {
             break;
         }
 
+        case "notes3": {
+            setActivity(app, {
+                details: "Viewing their Notes"
+            });
+
+            const doc =
+                document.querySelector<HTMLIFrameElement>(
+                    "iframe#notes3"
+                )?.contentDocument;
+
+            if (doc) {
+                new MutationObserver(() => {
+                    const activeCategory = doc.querySelector<HTMLDivElement>(
+                            ".notes-folder-list-content-view.notes-list-focused .cw-list-item-view.cw-selected"
+                        ),
+                        activeNote = doc.querySelector<HTMLDivElement>(
+                            ".notes-list-focused .list-item.is-selected"
+                        ),
+                        activeNoteAlt = doc.querySelector<HTMLDivElement>(
+                            ".list-item.is-selected"
+                        );
+
+                    if (activeNote || (activeNoteAlt && !activeCategory)) {
+                        const title =
+                            activeNoteAlt.querySelector<HTMLDivElement>(
+                                ".note-list-item-title"
+                            )?.textContent;
+
+                        setActivity(app, {
+                            details: "Editing a Note",
+                            state: title
+                        });
+                    } else if (activeCategory) {
+                        const title =
+                            activeCategory.querySelector<HTMLSpanElement>(
+                                ".folder-label-container-shim > span.folder-label"
+                            )?.textContent;
+
+                        setActivity(app, {
+                            details: "Viewing a Category",
+                            state: title
+                        });
+                    } else {
+                        setActivity(app, {
+                            details: "Viewing their Notes"
+                        });
+                    }
+                }).observe(doc, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            break;
+        }
+
+        case "reminders2": {
+            setActivity(app, {
+                details: "Viewing their Reminders"
+            });
+
+            const doc =
+                document.querySelector<HTMLIFrameElement>(
+                    "iframe#reminders2"
+                )?.contentDocument;
+
+            if (doc) {
+                new MutationObserver(() => {
+                    const activeList =
+                        doc.querySelector<HTMLDivElement>(".rm-list");
+
+                    if (activeList) {
+                        const title = activeList.querySelector<HTMLDivElement>(
+                                ".title-section .title .inline-editable-label"
+                            )?.textContent,
+                            isEditing =
+                                activeList.querySelector<HTMLDivElement>(
+                                    ".primary.rm-new-reminder"
+                                ).style.color === "rgb(255, 255, 255)";
+
+                        setActivity(app, {
+                            details: `${
+                                isEditing
+                                    ? "Editing a Reminder"
+                                    : "Viewing Reminders"
+                            }`,
+                            state: title
+                        });
+                    } else {
+                        setActivity(app, {
+                            details: "Viewing their Reminders"
+                        });
+                    }
+                }).observe(doc, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            break;
+        }
+
+        case "find": {
+            setActivity(app, {
+                details: "Viewing Find My"
+            });
+
+            const doc =
+                document.querySelector<HTMLIFrameElement>(
+                    "iframe#find"
+                )?.contentDocument;
+
+            if (doc) {
+                new MutationObserver(() => {
+                    const loggingIn = doc.querySelector<HTMLDivElement>(
+                            ".find-me.logged-out-view:not(.sc-hidden)"
+                        ),
+                        device = doc.querySelector<HTMLDivElement>(
+                            ".find-me.sc-view.devices-btn.st-devicesBtn.button label"
+                        )?.textContent,
+                        deviceDialog = doc.querySelector<HTMLDivElement>(
+                            ".find-me.sc-panel.sc-palette.device-detail-floating-view.device-action-pane.focus.panel"
+                        ),
+                        deviceImg =
+                            deviceDialog?.querySelector<HTMLImageElement>(
+                                "img.device-image"
+                            )?.src;
+
+                    if (loggingIn) {
+                        setActivity(app, {
+                            details: "Find My",
+                            state: "Logging in"
+                        });
+                    } else {
+                        setActivity(app, {
+                            details: "Viewing Find My",
+                            state: device,
+                            smallImageKey: deviceDialog ? deviceImg : undefined
+                        });
+                    }
+                }).observe(doc, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            break;
+        }
+
         default:
             break;
     }
