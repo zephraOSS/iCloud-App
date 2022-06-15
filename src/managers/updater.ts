@@ -1,5 +1,6 @@
 import { app, dialog } from "electron";
 import { autoUpdater } from "electron-updater";
+
 import * as log from "electron-log";
 
 export function init() {
